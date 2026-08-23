@@ -130,7 +130,7 @@ function FieldInput({
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         required={required}
-        className="h-9 rounded-[8px] border border-gray-300 bg-white px-3 text-sm text-gray-900
+        className="h-9 rounded-[3px] border border-gray-300 bg-white px-3 text-sm text-gray-900
           placeholder:text-gray-400 focus:outline-none focus:border-primary focus:ring-2
           focus:ring-primary/20 transition-all"
       />
@@ -155,7 +155,7 @@ function SelectInput({
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="h-9 rounded-[8px] border border-gray-300 bg-white px-3 text-sm text-gray-900
+        className="h-9 rounded-[3px] border border-gray-300 bg-white px-3 text-sm text-gray-900
           focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
       >
         {options.map(o => <option key={o}>{o}</option>)}
@@ -185,7 +185,7 @@ function ContactRow({
           type="text"
           value={value.brokerContact}
           onChange={e => onChange({ ...value, brokerContact: e.target.value })}
-          className="w-full h-8 rounded-[6px] border border-gray-300 bg-white px-2 text-sm
+          className="w-full h-8 rounded-[3px] border border-gray-300 bg-white px-2 text-sm
             focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
         />
       </td>
@@ -195,7 +195,7 @@ function ContactRow({
           type="text"
           value={value.escrow}
           onChange={e => onChange({ ...value, escrow: e.target.value })}
-          className="w-full h-8 rounded-[6px] border border-gray-300 bg-white px-2 text-sm
+          className="w-full h-8 rounded-[3px] border border-gray-300 bg-white px-2 text-sm
             focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
         />
       </td>
@@ -206,7 +206,7 @@ function ContactRow({
             type="text"
             value={value.buyersAgent}
             onChange={e => onChange({ ...value, buyersAgent: e.target.value })}
-            className="w-full h-8 rounded-[6px] border border-gray-300 bg-white px-2 text-sm
+            className="w-full h-8 rounded-[3px] border border-gray-300 bg-white px-2 text-sm
               focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
           />
         </td>
@@ -218,7 +218,7 @@ function ContactRow({
             type="text"
             value={value.sellersAgent}
             onChange={e => onChange({ ...value, sellersAgent: e.target.value })}
-            className="w-full h-8 rounded-[6px] border border-gray-300 bg-white px-2 text-sm
+            className="w-full h-8 rounded-[3px] border border-gray-300 bg-white px-2 text-sm
               focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
           />
         </td>
@@ -251,7 +251,7 @@ function FeeRow({
           value={value}
           onChange={e => onChange(e.target.value)}
           readOnly={readOnly}
-          className={`w-full h-8 rounded-[6px] border px-2 text-sm transition-all
+          className={`w-full h-8 rounded-[3px] border px-2 text-sm transition-all
             ${readOnly
               ? 'border-gray-200 bg-gray-50 text-gray-700 cursor-default'
               : 'border-gray-300 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20'
@@ -312,24 +312,28 @@ export default function App() {
   if (status === 'success') {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center p-6">
-        <div className="bg-white rounded-2xl shadow-lg p-10 max-w-md w-full text-center border border-gray-200">
+        <div className="bg-white rounded-[3px] shadow-lg p-10 max-w-md w-full text-center border border-gray-200">
           <CheckCircle className="w-16 h-16 text-success mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Manrope, sans-serif' }}>
-            Order Submitted!
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Order Received
           </h2>
           <p className="text-gray-600 mb-2">
-            Closing Doc Order for <span className="font-semibold text-primary">{form.tqlLoanNumber || 'N/A'}</span> has been sent.
+            Closing Doc Order for{' '}
+            <span className="font-semibold text-primary defy-break" data-allow-copy>
+              {form.tqlLoanNumber || 'N/A'}
+            </span>{' '}
+            is with the doc drawing team.
           </p>
-          <p className="text-sm text-gray-500 mb-8">
+          <p className="text-sm text-gray-500 mb-8 defy-break">
             Delivered to <strong>tposupport@tqlend.com</strong> and <strong>Disclosuredesk@tqlend.com</strong>
           </p>
           <button
             onClick={handleReset}
-            className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl
-              font-semibold text-sm hover:bg-primary-hover transition-colors"
+            className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-[5px]
+              font-medium text-sm hover:bg-primary-hover transition-colors"
           >
             <RotateCcw className="w-4 h-4" />
-            Submit Another Order
+            Order Another →
           </button>
         </div>
       </div>
@@ -354,20 +358,20 @@ export default function App() {
 
         {/* Header — title only, no logo */}
         <div className="text-right mb-6">
-          <h1 className="text-2xl font-extrabold text-gray-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
+          <h1 className="text-2xl font-extrabold text-gray-900">
             CLOSING DOC ORDER
           </h1>
-          <p className="text-xs text-gray-500 italic">Please complete all fields</p>
+          <p className="text-xs text-gray-500">Complete every field. No blanks.</p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
 
           {/* ── Section 1: Header Fields ── */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+          <div className="bg-white rounded-[3px] border border-gray-200 shadow-sm p-6">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <FieldInput
-                label="TQL Loan Number"
+                label="Defy Loan Number"
                 value={form.tqlLoanNumber}
                 onChange={v => set('tqlLoanNumber', v)}
                 required
@@ -420,28 +424,28 @@ export default function App() {
           </div>
 
           {/* ── Section 2: Contact Information ── */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+          <div className="bg-white rounded-[3px] border border-gray-200 shadow-sm p-6">
             <h2 className="text-sm font-bold uppercase tracking-widest text-primary border-b border-primary/20 pb-2 mb-4">
               Contact Information
             </h2>
-            <div className="overflow-x-auto">
+            <div className="defy-scroll-x">
               <table className="w-full">
                 <thead>
                   <tr>
                     <th className="w-36" />
-                    <th className="py-2 px-1 text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-md text-center">
+                    <th className="py-2 px-1 text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] text-center">
                       Broker Contact Info
                     </th>
-                    <th className="py-2 px-1 text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-md text-center">
+                    <th className="py-2 px-1 text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] text-center">
                       Escrow / Settlement
                     </th>
                     {isPurchase && (
-                      <th className="py-2 px-1 text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-md text-center">
+                      <th className="py-2 px-1 text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] text-center">
                         Purchase — Buyers Agent
                       </th>
                     )}
                     {isPurchase && (
-                      <th className="py-2 px-1 text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-md text-center">
+                      <th className="py-2 px-1 text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] text-center">
                         Purchase — Sellers Agent
                       </th>
                     )}
@@ -487,39 +491,39 @@ export default function App() {
           </div>
 
           {/* ── Section 3: Broker Fee Details ── */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+          <div className="bg-white rounded-[3px] border border-gray-200 shadow-sm p-6">
             <h2 className="text-sm font-bold uppercase tracking-widest text-primary border-b border-primary/20 pb-2 mb-4">
               Confirm Broker Fee Details
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <table className="w-full">
+              <div className="defy-scroll-x"><table className="w-full">
                 <thead>
                   <tr>
-                    <th className="text-left text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-md py-2 px-3">
+                    <th className="text-left text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3">
                       Fee Description
                     </th>
-                    <th className="text-left text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-md py-2 px-3 w-36">
+                    <th className="text-left text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3 w-36">
                       Total Amount
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   <FeeRow label="Origination Fee (%/$)" value={form.originationFee} onChange={v => set('originationFee', v)} />
-                  <FeeRow label="TQL UW Fee" value={form.tqlUwFee} onChange={v => set('tqlUwFee', v)} readOnly />
-                  <FeeRow label="Paid to TQL Discount Fee (%/$)" value={form.discountFee} onChange={v => set('discountFee', v)} readOnly />
+                  <FeeRow label="Underwriting Fee" value={form.tqlUwFee} onChange={v => set('tqlUwFee', v)} readOnly />
+                  <FeeRow label="Paid to Defy Discount Fee (%/$)" value={form.discountFee} onChange={v => set('discountFee', v)} readOnly />
                   <FeeRow label="Processing Fee — Broker Charged" value={form.processingFeeBroker} onChange={v => set('processingFeeBroker', v)} />
                   <FeeRow label="Credit Report Fee" value={form.creditReportFee} onChange={v => set('creditReportFee', v)} />
                   <FeeRow label="Broker YSP Credit (DSCR Only)" value={form.brokerYspCredit} onChange={v => set('brokerYspCredit', v)} />
                 </tbody>
-              </table>
+              </table></div>
 
-              <table className="w-full">
+              <div className="defy-scroll-x"><table className="w-full">
                 <thead>
                   <tr>
-                    <th className="text-left text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-md py-2 px-3">
+                    <th className="text-left text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3">
                       Other Fees
                     </th>
-                    <th className="text-left text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-md py-2 px-3 w-36">
+                    <th className="text-left text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3 w-36">
                       Amount
                     </th>
                   </tr>
@@ -531,7 +535,7 @@ export default function App() {
                   <FeeRow label="Processing Fee — Paid to 3rd Party" value={form.processingFee3rdParty} onChange={v => set('processingFee3rdParty', v)} />
                   <FeeRow label="Broker Credit to Borrower (%)" value={form.brokerCredit} onChange={v => set('brokerCredit', v)} />
                 </tbody>
-              </table>
+              </table></div>
             </div>
 
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -551,7 +555,7 @@ export default function App() {
           </div>
 
           {/* ── Section 4: Additional Information ── */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+          <div className="bg-white rounded-[3px] border border-gray-200 shadow-sm p-6">
             <h2 className="text-sm font-bold uppercase tracking-widest text-primary border-b border-primary/20 pb-2 mb-4">
               Additional Information
             </h2>
@@ -564,7 +568,7 @@ export default function App() {
                 onChange={e => set('notes', e.target.value)}
                 rows={5}
                 placeholder="Include any special instructions, conditions, or notes for the doc drawing team..."
-                className="rounded-[8px] border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900
+                className="rounded-[3px] border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900
                   placeholder:text-gray-400 focus:outline-none focus:border-primary focus:ring-2
                   focus:ring-primary/20 transition-all resize-none"
               />
@@ -572,7 +576,7 @@ export default function App() {
           </div>
 
           {/* ── Required Attachments Reminder ── */}
-          <div className="bg-primary-light rounded-xl border border-primary/20 p-4">
+          <div className="bg-primary-light rounded-[3px] border border-primary/20 p-4">
             <h4 className="text-xs font-bold uppercase tracking-widest text-primary mb-2">
               Please Include These Items with This Form
             </h4>
@@ -584,7 +588,7 @@ export default function App() {
 
           {/* ── Error Banner ── */}
           {status === 'error' && (
-            <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+            <div className="flex items-center gap-3 bg-error-surface border border-error/30 text-error rounded-[3px] px-4 py-3 text-sm">
               <AlertCircle className="w-5 h-5 shrink-0" />
               <span>{errorMsg || 'Submission failed. Please try again.'}</span>
             </div>
@@ -592,14 +596,14 @@ export default function App() {
 
           {/* ── Submit ── */}
           <div className="flex items-center justify-between gap-4 pb-8">
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-500">
               Delivered to: <span className="font-medium">tposupport@tqlend.com</span> &amp; <span className="font-medium">Disclosuredesk@tqlend.com</span>
             </p>
             <button
               type="submit"
               disabled={status === 'submitting'}
-              className="inline-flex items-center gap-2 bg-primary text-white px-8 py-3 rounded-xl
-                font-semibold text-sm hover:bg-primary-hover transition-colors disabled:opacity-60
+              className="inline-flex items-center gap-2 bg-primary text-white px-8 py-3 rounded-[5px]
+                font-medium text-sm hover:bg-primary-hover transition-colors disabled:opacity-60
                 disabled:cursor-not-allowed shadow-md"
             >
               {status === 'submitting' ? (
@@ -610,7 +614,7 @@ export default function App() {
               ) : (
                 <>
                   <Send className="w-4 h-4" />
-                  Submit Closing Doc Order
+                  Send Closing Doc Order →
                 </>
               )}
             </button>
@@ -618,7 +622,9 @@ export default function App() {
 
         </form>
 
-        <p className="text-center text-xs text-gray-400 pb-6">Thank you for your Partnership! — Total Quality Lending</p>
+        <p className="text-center text-xs text-gray-500 pb-6">
+          Defy Mortgage, LLC · NMLS #2383214
+        </p>
       </div>
     </div>
   )

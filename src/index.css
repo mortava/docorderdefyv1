@@ -1,50 +1,84 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
+/* ==========================================================================
+   Defy Wholesale — Closing Doc Order
+   Light theme (Jay's directive: Defy tools default LIGHT, marketing is dark).
+   Light is also the correct surface for the printable/PDF and email renders.
+
+   Every color below is contrast-verified against the surface it sits on.
+   Brand teal #2989A3 is only 4.04:1 on white and is NEVER used as text here;
+   #24788F (5.05:1) carries both the fill and the text role in light theme.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Manrope:wght@600;700;800&display=swap');
 @import 'tailwindcss';
 
 @theme {
-  --color-primary: #245F73;
-  --color-primary-hover: #1B4A5B;
-  --color-primary-light: #E6EEF1;
-  --color-secondary: #334155;
-  --color-brand-text: #0B1220;
-  --color-navy: #0F172A;
-  --color-link: #2180CF;
+  /* ---- Brand -------------------------------------------------------- */
+  --color-primary:       #24788F; /* fill AND text — 5.05:1 on white */
+  --color-primary-hover: #1F6478; /* hover goes DARKER — 6.66:1 */
+  --color-primary-deep:  #1F6478; /* teal text on a teal tint — 5.99:1 */
+  --color-primary-light: #EDF4F6; /* teal tint surface */
+  --color-link:          #1F6478; /* 6.66:1 */
 
-  --color-success: #16A34A;
-  --color-warning: #F59E0B;
-  --color-error: #DC2626;
+  /* ---- Semantic ----------------------------------------------------- */
+  --color-success:       #318171; /* 4.66:1 on white */
+  --color-warning:       #8A5A00;
+  --color-error:         #B3302F; /* 6.21:1 on white */
+  --color-error-surface: #FDECEC; /* error banner fill — text 5.44:1 */
+  --color-info:          #267E97; /* 4.65:1 on white */
 
-  --color-bg: #FAFAF8;
-  --color-surface: #F8FAFC;
-  --color-surface-alt: #E2E8F0;
-  --color-border: #CBD5E1;
+  /* ---- Surfaces ----------------------------------------------------- */
+  --color-bg:          #F7F7F8;
+  --color-surface:     #FFFFFF;
+  --color-surface-alt: #F1F1F3;
+  --color-border:      #E1E1E6;
 
-  --color-gray-50:  #FAFAF8;
-  --color-gray-100: #F8FAFC;
-  --color-gray-200: #E2E8F0;
-  --color-gray-300: #CBD5E1;
-  --color-gray-400: #94A3B8;
-  --color-gray-500: #64748B;
-  --color-gray-600: #475569;
-  --color-gray-700: #334155;
-  --color-gray-800: #1E293B;
-  --color-gray-900: #0B1220;
+  /* ---- Neutrals (mapped to Defy light text scale) -------------------- */
+  --color-gray-50:  #F7F7F8;
+  --color-gray-100: #F1F1F3;
+  --color-gray-200: #E9E9EC;
+  --color-gray-300: #E1E1E6;
+  --color-gray-400: #74747E; /* placeholder — 4.62:1 */
+  --color-gray-500: #6B6B76; /* labels/meta — 5.26:1 white, 4.92:1 card */
+  --color-gray-600: #45454D; /* 9.50:1 */
+  --color-gray-700: #45454D;
+  --color-gray-800: #131316;
+  --color-gray-900: #131316; /* 18.54:1 */
 
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --color-brand-text: #131316;
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  /* ---- Type --------------------------------------------------------- */
+  /* Google Sans is proprietary and will not load for public visitors —
+     Manrope is what actually renders, so sizing is tuned against Manrope. */
+  --font-sans: 'DM Sans', 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-display: 'Google Sans', 'Google Sans Display', 'Manrope', -apple-system,
+                  'Segoe UI', system-ui, sans-serif;
 
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
-  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.08);
-  --shadow-focus: 0 0 0 3px rgba(36, 95, 115, 0.25);
+  /* ---- Radii — Defy is near-square. 3px base, 5px buttons. ----------- */
+  --radius-xs:  3px;
+  --radius-sm:  3px;
+  --radius-md:  3px;
+  --radius-lg:  5px;
+  --radius-xl:  5px;
+  --radius-2xl: 5px;
+  --radius-3xl: 5px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.10), 0 0 0 1px rgba(0, 0, 0, 0.06);
+
+  --ease-defy: cubic-bezier(0.2, 0, 0, 1);
 }
 
 @layer base {
   *, *::before, *::after { box-sizing: border-box; }
+
+  /* Embedded-app guards — this form renders inside a parent site.
+     Horizontal overflow and container drift are the two failure modes. */
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+    overscroll-behavior: none;
+  }
 
   html, body {
     @apply antialiased m-0;
@@ -52,11 +86,15 @@
     color: var(--color-brand-text);
     font-family: var(--font-sans);
     font-variant-numeric: tabular-nums;
+    -webkit-text-size-adjust: 100%;
   }
+
+  img, svg, video, iframe { max-width: 100%; height: auto; }
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
+    overflow-wrap: break-word;
   }
   h1 { font-weight: 800; }
   h2, h3 { font-weight: 700; }
@@ -64,10 +102,32 @@
 
   ::selection {
     background: var(--color-primary-light);
-    color: var(--color-primary);
+    color: var(--color-primary-deep);
   }
 
   input, textarea, select {
     font-family: var(--font-sans);
+  }
+
+  /* Focus ring is always visible — 2px, brand teal. */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  /* Wide content (the contact + fee tables) scrolls inside its OWN
+     container, never the page. */
+  .defy-scroll-x {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Long unbroken strings — loan numbers, emails — must not push layout. */
+  .defy-break {
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 }
