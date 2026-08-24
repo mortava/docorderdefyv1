@@ -57,6 +57,9 @@ type ContactFieldKey = {
 
 type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error'
 
+// DEFY ONE — where brokers return after submitting.
+const WORKSPACE_URL = 'https://one.defywholesale.com'
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function emptyContact(): ContactColumn {
@@ -357,14 +360,29 @@ export default function App() {
           <p className="text-sm text-gray-500 mb-8 defy-break">
             Delivered to <strong>setup@defywholesale.com</strong>
           </p>
-          <button
-            onClick={handleReset}
-            className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-[5px]
-              font-medium text-sm hover:bg-primary-hover transition-colors"
-          >
-            <RotateCcw className="w-4 h-4" />
-            Order Another →
-          </button>
+          {/* Returning to the workspace is the expected next step, so it takes
+              the single accent action. target="_top" breaks out of the parent
+              frame if this form is embedded — otherwise it behaves as _self. */}
+          <div className="flex flex-col gap-3">
+            <a
+              href={WORKSPACE_URL}
+              target="_top"
+              rel="noopener"
+              className="inline-flex items-center justify-center gap-2 bg-primary text-white px-6 py-3
+                rounded-[5px] font-medium text-sm hover:bg-primary-hover transition-colors"
+            >
+              Return to Workspace →
+            </a>
+            <button
+              onClick={handleReset}
+              className="inline-flex items-center justify-center gap-2 bg-white text-gray-900
+                border border-gray-300 px-6 py-3 rounded-[5px] font-medium text-sm
+                hover:bg-gray-50 transition-colors"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Order Another
+            </button>
+          </div>
         </div>
       </div>
     )
