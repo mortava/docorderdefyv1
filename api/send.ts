@@ -5,7 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 // DEFY Wholesale Resend domain (defywholesale.com). Both are env-overridable so
 // routing can change without a redeploy; the defaults are the live values.
-const FROM = process.env.RESEND_FROM_EMAIL || 'Closingdocorder@defywholesale.com'
+const FROM = process.env.RESEND_FROM_EMAIL || 'docorder@defywholesale.com'
 
 // setup@ routes to the Cloudflare `submission-conditions` worker — the same
 // lane the other DEFY doc/condition intake apps use.

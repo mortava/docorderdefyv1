@@ -84,7 +84,7 @@ const initialForm = (): FormData => ({
   closingDocEmail: '',
 
   originationFee: '',
-  uwFee: '$1,795',
+  uwFee: '$1,695',
   discountFee: '0',
   processingFeeBroker: '',
   creditReportFee: '',
