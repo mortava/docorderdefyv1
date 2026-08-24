@@ -15,10 +15,9 @@ const TO = (process.env.RESEND_TO_EMAILS || 'setup@defywholesale.com')
   .filter(Boolean)
 
 interface ContactColumn {
-  brokerContact: string
+  escrow: string
   buyersAgent: string
   sellersAgent: string
-  escrow: string
 }
 
 interface FormData {
@@ -72,7 +71,7 @@ function sectionHead(title: string) {
 
 function contactRows(data: FormData): string {
   const fields: Array<{ label: string; key: keyof FormData }> = [
-    { label: 'Broker Name',            key: 'brokerName' },
+    { label: 'Company Name',           key: 'brokerName' },
     { label: 'State Lic #',            key: 'stateLic' },
     { label: 'NMLS ID',               key: 'nmlsId' },
     { label: 'Address',               key: 'address' },
@@ -82,14 +81,15 @@ function contactRows(data: FormData): string {
     { label: 'Email @',               key: 'email' },
     { label: 'Phone #',               key: 'phone' },
   ]
+  const isPurchase = data.transactionType === 'Purchase'
   return fields.map(({ label, key }) => {
     const col = data[key] as ContactColumn
+    const cell = (v: string) =>
+      `<td style="padding:5px 8px;font-size:12px;color:#0B1220;">${v || ''}</td>`
     return `<tr style="border-bottom:1px solid #E2E8F0;">
       <td style="padding:5px 8px;font-size:12px;color:#64748B;font-weight:500;background:#F7F7F8;width:120px;">${label}</td>
-      <td style="padding:5px 8px;font-size:12px;color:#0B1220;">${col.brokerContact || ''}</td>
-      <td style="padding:5px 8px;font-size:12px;color:#0B1220;">${col.buyersAgent || ''}</td>
-      <td style="padding:5px 8px;font-size:12px;color:#0B1220;">${col.sellersAgent || ''}</td>
-      <td style="padding:5px 8px;font-size:12px;color:#0B1220;">${col.escrow || ''}</td>
+      ${cell(col.escrow)}
+      ${isPurchase ? cell(col.buyersAgent) + cell(col.sellersAgent) : ''}
     </tr>`
   }).join('')
 }
@@ -134,10 +134,10 @@ function buildHtml(d: FormData): string {
       <thead>
         <tr style="background:#24788F;">
           <th style="padding:6px 8px;color:#fff;font-size:11px;text-align:left;width:120px;"> </th>
-          <th style="padding:6px 8px;color:#fff;font-size:11px;text-align:left;">Broker Contact</th>
-          <th style="padding:6px 8px;color:#fff;font-size:11px;text-align:left;">Buyer's Agent</th>
-          <th style="padding:6px 8px;color:#fff;font-size:11px;text-align:left;">Seller's Agent</th>
           <th style="padding:6px 8px;color:#fff;font-size:11px;text-align:left;">Escrow/Settlement</th>
+          ${d.transactionType === 'Purchase' ? `
+          <th style="padding:6px 8px;color:#fff;font-size:11px;text-align:left;">Buyer's Agent</th>
+          <th style="padding:6px 8px;color:#fff;font-size:11px;text-align:left;">Seller's Agent</th>` : ''}
         </tr>
       </thead>
       <tbody>${contactRows(d)}</tbody>

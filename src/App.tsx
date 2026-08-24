@@ -3,12 +3,15 @@ import { Send, CheckCircle, AlertCircle, Loader2, RotateCcw } from 'lucide-react
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
+// One row of contact data, held per party. The Broker/TPO party was removed
+// 2026-08-24 — the broker filling this form is already identified by the loan.
 interface ContactColumn {
-  brokerContact: string
+  escrow: string
   buyersAgent: string
   sellersAgent: string
-  escrow: string
 }
+
+type ContactParty = keyof ContactColumn
 
 interface FormData {
   loanNumber: string
@@ -51,13 +54,31 @@ interface FormData {
   notes: string
 }
 
+// Keys on FormData whose value is a ContactColumn.
+type ContactFieldKey = {
+  [K in keyof FormData]: FormData[K] extends ContactColumn ? K : never
+}[keyof FormData]
+
 type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function emptyContact(): ContactColumn {
-  return { brokerContact: '', buyersAgent: '', sellersAgent: '', escrow: '' }
+  return { escrow: '', buyersAgent: '', sellersAgent: '' }
 }
+
+// Field rows shared by every contact party.
+const CONTACT_FIELDS: Array<{ label: string; key: ContactFieldKey }> = [
+  { label: 'Company Name',           key: 'brokerName' },
+  { label: 'State Lic #',            key: 'stateLic' },
+  { label: 'NMLS ID',                key: 'nmlsId' },
+  { label: 'Address',                key: 'address' },
+  { label: 'City/St/Zip',            key: 'cityStZip' },
+  { label: 'Contact',                key: 'contact' },
+  { label: 'Contact Lic # (If App)', key: 'contactLic' },
+  { label: 'Email @',                key: 'email' },
+  { label: 'Phone #',                key: 'phone' },
+]
 
 const initialForm = (): FormData => ({
   loanNumber: '',
@@ -164,68 +185,39 @@ function SelectInput({
   )
 }
 
-// Contact grid row — shows broker + escrow always; buyer/seller only when isPurchase
-function ContactRow({
-  label,
-  value,
+// One contact party (Escrow, Buyer's Agent, Seller's Agent) rendered as a
+// labelled block. Refinance shows a single block laid out horizontally;
+// Purchase stacks three blocks vertically.
+function ContactPartyBlock({
+  title,
+  party,
+  form,
   onChange,
-  isPurchase,
 }: {
-  label: string
-  value: ContactColumn
-  onChange: (v: ContactColumn) => void
-  isPurchase: boolean
+  title: string
+  party: ContactParty
+  form: FormData
+  onChange: (key: ContactFieldKey, value: ContactColumn) => void
 }) {
   return (
-    <tr className="border-b border-gray-200">
-      <td className="py-2 pr-3 text-xs font-medium text-gray-600 whitespace-nowrap w-36">{label}</td>
-      {/* Broker Contact */}
-      <td className="py-1.5 px-1">
-        <input
-          type="text"
-          value={value.brokerContact}
-          onChange={e => onChange({ ...value, brokerContact: e.target.value })}
-          className="w-full h-8 rounded-[3px] border border-gray-300 bg-white px-2 text-sm
-            focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-        />
-      </td>
-      {/* Escrow / Settlement — always visible, right after Broker */}
-      <td className="py-1.5 px-1">
-        <input
-          type="text"
-          value={value.escrow}
-          onChange={e => onChange({ ...value, escrow: e.target.value })}
-          className="w-full h-8 rounded-[3px] border border-gray-300 bg-white px-2 text-sm
-            focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-        />
-      </td>
-      {/* Buyer's Agent — Purchase only */}
-      {isPurchase && (
-        <td className="py-1.5 px-1">
-          <input
-            type="text"
-            value={value.buyersAgent}
-            onChange={e => onChange({ ...value, buyersAgent: e.target.value })}
-            className="w-full h-8 rounded-[3px] border border-gray-300 bg-white px-2 text-sm
-              focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+    <div>
+      <div className="text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] px-3 py-2">
+        {title}
+      </div>
+      <div className="border border-t-0 border-gray-200 rounded-b-[3px] p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {CONTACT_FIELDS.map(({ label, key }) => (
+          <FieldInput
+            key={key}
+            label={label}
+            value={form[key][party]}
+            onChange={v => onChange(key, { ...form[key], [party]: v })}
           />
-        </td>
-      )}
-      {/* Seller's Agent — Purchase only */}
-      {isPurchase && (
-        <td className="py-1.5 px-1">
-          <input
-            type="text"
-            value={value.sellersAgent}
-            onChange={e => onChange({ ...value, sellersAgent: e.target.value })}
-            className="w-full h-8 rounded-[3px] border border-gray-300 bg-white px-2 text-sm
-              focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-          />
-        </td>
-      )}
-    </tr>
+        ))}
+      </div>
+    </div>
   )
 }
+
 
 function FeeRow({
   label,
@@ -277,7 +269,7 @@ export default function App() {
     setForm(prev => ({ ...prev, [key]: value }))
   }, [])
 
-  const setContact = useCallback(<K extends keyof FormData>(key: K, value: ContactColumn) => {
+  const setContact = useCallback((key: ContactFieldKey, value: ContactColumn) => {
     setForm(prev => ({ ...prev, [key]: value }))
   }, [])
 
@@ -340,35 +332,18 @@ export default function App() {
     )
   }
 
-  const contactRows: Array<{ label: string; key: keyof FormData }> = [
-    { label: 'Broker Name',            key: 'brokerName' },
-    { label: 'State Lic #',            key: 'stateLic' },
-    { label: 'NMLS ID',               key: 'nmlsId' },
-    { label: 'Address',               key: 'address' },
-    { label: 'City/St/Zip',           key: 'cityStZip' },
-    { label: 'Contact',               key: 'contact' },
-    { label: 'Contact Lic # (If App)', key: 'contactLic' },
-    { label: 'Email @',               key: 'email' },
-    { label: 'Phone #',               key: 'phone' },
-  ]
-
   return (
     <div className="min-h-screen bg-bg py-8 px-4">
       <div className="max-w-5xl mx-auto">
 
-        {/* Header — title only, no logo */}
-        <div className="text-right mb-6">
-          <h1 className="text-2xl font-extrabold text-gray-900">
-            CLOSING DOC ORDER
-          </h1>
-          <p className="text-xs text-gray-500">Complete every field. No blanks.</p>
-        </div>
-
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
 
-          {/* ── Section 1: Header Fields ── */}
+          {/* ── Section 1: Title + Header Fields ── */}
           <div className="bg-white rounded-[3px] border border-gray-200 shadow-sm p-6">
+            <h1 className="text-2xl font-extrabold text-gray-900 mb-5">
+              CLOSING DOC ORDER
+            </h1>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <FieldInput
                 label="Defy Loan Number"
@@ -428,41 +403,29 @@ export default function App() {
             <h2 className="text-sm font-bold uppercase tracking-widest text-primary border-b border-primary/20 pb-2 mb-4">
               Contact Information
             </h2>
-            <div className="defy-scroll-x">
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    <th className="w-36" />
-                    <th className="py-2 px-1 text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] text-center">
-                      Broker Contact Info
-                    </th>
-                    <th className="py-2 px-1 text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] text-center">
-                      Escrow / Settlement
-                    </th>
-                    {isPurchase && (
-                      <th className="py-2 px-1 text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] text-center">
-                        Purchase — Buyers Agent
-                      </th>
-                    )}
-                    {isPurchase && (
-                      <th className="py-2 px-1 text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] text-center">
-                        Purchase — Sellers Agent
-                      </th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {contactRows.map(({ label, key }) => (
-                    <ContactRow
-                      key={key}
-                      label={label}
-                      value={form[key] as ContactColumn}
-                      onChange={v => setContact(key, v)}
-                      isPurchase={isPurchase}
-                    />
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-6">
+              <ContactPartyBlock
+                title="Escrow / Settlement"
+                party="escrow"
+                form={form}
+                onChange={setContact}
+              />
+              {isPurchase && (
+                <ContactPartyBlock
+                  title="Purchase — Buyer's Agent"
+                  party="buyersAgent"
+                  form={form}
+                  onChange={setContact}
+                />
+              )}
+              {isPurchase && (
+                <ContactPartyBlock
+                  title="Purchase — Seller's Agent"
+                  party="sellersAgent"
+                  form={form}
+                  onChange={setContact}
+                />
+              )}
             </div>
 
             <div className="mt-4 space-y-3">
