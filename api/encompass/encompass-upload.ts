@@ -75,8 +75,8 @@ async function createEfolderDocument(
       },
       body: JSON.stringify([{
         title,
-        description: `Uploaded via TQL Flash Submit`,
-        applicationName: 'TQLFlashSubmit',
+        description: `Uploaded via DEFY TPO Submit`,
+        applicationName: 'DefyTPOSubmit',
         eFolderDocument: docType || 'Other',
       }]),
     }

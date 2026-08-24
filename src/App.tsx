@@ -11,7 +11,7 @@ interface ContactColumn {
 }
 
 interface FormData {
-  tqlLoanNumber: string
+  loanNumber: string
   borrowerLastName: string
   loanAmount: string
   dateNeeded: string
@@ -35,7 +35,7 @@ interface FormData {
   closingDocEmail: string
 
   originationFee: string
-  tqlUwFee: string
+  uwFee: string
   discountFee: string
   processingFeeBroker: string
   creditReportFee: string
@@ -60,7 +60,7 @@ function emptyContact(): ContactColumn {
 }
 
 const initialForm = (): FormData => ({
-  tqlLoanNumber: '',
+  loanNumber: '',
   borrowerLastName: '',
   loanAmount: '',
   dateNeeded: '',
@@ -84,7 +84,7 @@ const initialForm = (): FormData => ({
   closingDocEmail: '',
 
   originationFee: '',
-  tqlUwFee: '$1,795',
+  uwFee: '$1,795',
   discountFee: '0',
   processingFeeBroker: '',
   creditReportFee: '',
@@ -320,12 +320,12 @@ export default function App() {
           <p className="text-gray-600 mb-2">
             Closing Doc Order for{' '}
             <span className="font-semibold text-primary defy-break" data-allow-copy>
-              {form.tqlLoanNumber || 'N/A'}
+              {form.loanNumber || 'N/A'}
             </span>{' '}
             is with the doc drawing team.
           </p>
           <p className="text-sm text-gray-500 mb-8 defy-break">
-            Delivered to <strong>tposupport@tqlend.com</strong> and <strong>Disclosuredesk@tqlend.com</strong>
+            Delivered to <strong>setup@defywholesale.com</strong>
           </p>
           <button
             onClick={handleReset}
@@ -372,8 +372,8 @@ export default function App() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <FieldInput
                 label="Defy Loan Number"
-                value={form.tqlLoanNumber}
-                onChange={v => set('tqlLoanNumber', v)}
+                value={form.loanNumber}
+                onChange={v => set('loanNumber', v)}
                 required
               />
               <FieldInput
@@ -509,7 +509,7 @@ export default function App() {
                 </thead>
                 <tbody>
                   <FeeRow label="Origination Fee (%/$)" value={form.originationFee} onChange={v => set('originationFee', v)} />
-                  <FeeRow label="Underwriting Fee" value={form.tqlUwFee} onChange={v => set('tqlUwFee', v)} readOnly />
+                  <FeeRow label="Underwriting Fee" value={form.uwFee} onChange={v => set('uwFee', v)} readOnly />
                   <FeeRow label="Paid to Defy Discount Fee (%/$)" value={form.discountFee} onChange={v => set('discountFee', v)} readOnly />
                   <FeeRow label="Processing Fee — Broker Charged" value={form.processingFeeBroker} onChange={v => set('processingFeeBroker', v)} />
                   <FeeRow label="Credit Report Fee" value={form.creditReportFee} onChange={v => set('creditReportFee', v)} />
@@ -597,7 +597,7 @@ export default function App() {
           {/* ── Submit ── */}
           <div className="flex items-center justify-between gap-4 pb-8">
             <p className="text-xs text-gray-500">
-              Delivered to: <span className="font-medium">tposupport@tqlend.com</span> &amp; <span className="font-medium">Disclosuredesk@tqlend.com</span>
+              Delivered to: <span className="font-medium defy-break">setup@defywholesale.com</span>
             </p>
             <button
               type="submit"

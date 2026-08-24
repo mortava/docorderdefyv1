@@ -57,14 +57,14 @@ async function sendNotificationEmail(loanNumber: string, loanId: string): Promis
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'TQL Flash Submit <TPOSub@tqltpo.com>',
-      to: ['tposupport@tqlend.com'],
+      from: process.env.RESEND_FROM_EMAIL || 'Closingdocorder@defywholesale.com',
+      to: (process.env.RESEND_TO_EMAILS || 'setup@defywholesale.com').split(',').map(a => a.trim()).filter(Boolean),
       subject: `New Loan Submitted via Flash Submit — Loan #${loanNumber}`,
       html: `
         <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;">
           <h2 style="margin:0 0 16px;color:#0D3B66;">New Loan Submitted</h2>
           <p style="color:#333;font-size:14px;line-height:1.6;">
-            A new loan has been created in Encompass via <strong>TQL Flash Submit</strong>.
+            A new loan has been created in Encompass via <strong>DEFY TPO Submit</strong>.
           </p>
           <table style="width:100%;border-collapse:collapse;margin:16px 0;">
             <tr>
@@ -85,7 +85,7 @@ async function sendNotificationEmail(loanNumber: string, loanId: string): Promis
             </tr>
           </table>
           <p style="color:#999;font-size:11px;margin-top:24px;">
-            This is an automated notification from TQL Flash Submit.
+            This is an automated notification from DEFY TPO Submit.
           </p>
         </div>
       `,
@@ -94,7 +94,7 @@ async function sendNotificationEmail(loanNumber: string, loanId: string): Promis
 }
 
 // Resolve the Encompass Lender Case # / Loan Number for the loan that was just
-// created. TQL's Encompass instance auto-assigns a 317-prefixed loan number,
+// created. DEFY TPO's Encompass instance auto-assigns a 317-prefixed loan number,
 // stored in field 4 (Loan Number) and mirrored to field 305 (Lender Case #).
 // Numbers are not always populated on the very first read after a /loans POST,
 // so we retry the fieldReader a few times with a short backoff and never

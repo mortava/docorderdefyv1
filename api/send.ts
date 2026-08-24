@@ -3,8 +3,16 @@ import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const FROM = 'ReadytoClose@tqltpo.com'
-const TO = ['tposupport@tqlend.com', 'Disclosuredesk@tqlend.com']
+// DEFY Wholesale Resend domain (defywholesale.com). Both are env-overridable so
+// routing can change without a redeploy; the defaults are the live values.
+const FROM = process.env.RESEND_FROM_EMAIL || 'Closingdocorder@defywholesale.com'
+
+// setup@ routes to the Cloudflare `submission-conditions` worker — the same
+// lane the other DEFY doc/condition intake apps use.
+const TO = (process.env.RESEND_TO_EMAILS || 'setup@defywholesale.com')
+  .split(',')
+  .map(a => a.trim())
+  .filter(Boolean)
 
 interface ContactColumn {
   brokerContact: string
@@ -14,7 +22,7 @@ interface ContactColumn {
 }
 
 interface FormData {
-  tqlLoanNumber: string
+  loanNumber: string
   borrowerLastName: string
   loanAmount: string
   dateNeeded: string
@@ -35,7 +43,7 @@ interface FormData {
   vestingMethod: string
   closingDocEmail: string
   originationFee: string
-  tqlUwFee: string
+  uwFee: string
   discountFee: string
   processingFeeBroker: string
   creditReportFee: string
@@ -97,11 +105,11 @@ function buildHtml(d: FormData): string {
     <tr>
       <td style="padding:20px 28px;">
         <div style="color:#fff;font-size:22px;font-weight:800;letter-spacing:-0.5px;">CLOSING DOC ORDER</div>
-        <div style="color:#EDF4F6;font-size:12px;margin-top:2px;">Defy Wholesale — Broker Portal</div>
+        <div style="color:#EDF4F6;font-size:12px;margin-top:2px;">DEFY TPO — Broker Portal</div>
       </td>
       <td style="padding:20px 28px;text-align:right;">
         <div style="color:#EDF4F6;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;">Defy Loan Number</div>
-        <div style="color:#fff;font-size:20px;font-weight:700;">${d.tqlLoanNumber || 'N/A'}</div>
+        <div style="color:#fff;font-size:20px;font-weight:700;">${d.loanNumber || 'N/A'}</div>
       </td>
     </tr>
   </table>
@@ -145,7 +153,7 @@ function buildHtml(d: FormData): string {
     <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;margin-bottom:20px;">
       ${sectionHead('Standard Fees')}
       ${tr('Origination Fee (%/$)', d.originationFee)}
-      ${tr('Underwriting Fee', d.tqlUwFee)}
+      ${tr('Underwriting Fee', d.uwFee)}
       ${tr('Paid to Defy Discount Fee (%/$)', d.discountFee)}
       ${tr('Processing Fee — Broker Charged', d.processingFeeBroker)}
       ${tr('Credit Report Fee', d.creditReportFee)}
@@ -193,7 +201,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const data = req.body as FormData
-  const loanNumber = data.tqlLoanNumber || 'N/A'
+  const loanNumber = data.loanNumber || 'N/A'
 
   try {
     await resend.emails.send({

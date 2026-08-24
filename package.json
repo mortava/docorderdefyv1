@@ -1,10 +1,10 @@
 {
-  "name": "tqlclosingdocorderv1",
+  "name": "defyclosingdocorderv1",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "engines": { "node": "22.x" },
-  "description": "Defy Wholesale Closing Doc Order — digital form with Resend email delivery",
+  "description": "DEFY TPO Closing Doc Order — digital form with Resend email delivery",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
