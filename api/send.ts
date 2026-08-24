@@ -57,13 +57,13 @@ interface FormData {
 function tr(label: string, value: string) {
   if (!value) return ''
   return `<tr>
-    <td style="padding:6px 12px;font-size:12px;color:#64748B;font-weight:600;white-space:nowrap;background:#F7F7F8;border-bottom:1px solid #E2E8F0;width:220px;">${label}</td>
-    <td style="padding:6px 12px;font-size:13px;color:#0B1220;border-bottom:1px solid #E2E8F0;">${value}</td>
+    <td style="padding:6px 12px;font-size:12px;color:#4A5A68;font-weight:600;white-space:nowrap;background:#F2F7F9;border-bottom:1px solid #D8DCE2;width:220px;">${label}</td>
+    <td style="padding:6px 12px;font-size:13px;color:#0A0E17;border-bottom:1px solid #D8DCE2;">${value}</td>
   </tr>`
 }
 
 function sectionHead(title: string) {
-  return `<tr><td colspan="2" style="background:#24788F;color:#fff;padding:8px 12px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">${title}</td></tr>`
+  return `<tr><td colspan="2" style="background:#1F7C93;color:#fff;padding:8px 12px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">${title}</td></tr>`
 }
 
 function contactRows(data: FormData): string {
@@ -82,9 +82,9 @@ function contactRows(data: FormData): string {
   return fields.map(({ label, key }) => {
     const col = data[key] as ContactColumn
     const cell = (v: string) =>
-      `<td style="padding:5px 8px;font-size:12px;color:#0B1220;">${v || ''}</td>`
-    return `<tr style="border-bottom:1px solid #E2E8F0;">
-      <td style="padding:5px 8px;font-size:12px;color:#64748B;font-weight:500;background:#F7F7F8;width:120px;">${label}</td>
+      `<td style="padding:5px 8px;font-size:12px;color:#0A0E17;">${v || ''}</td>`
+    return `<tr style="border-bottom:1px solid #D8DCE2;">
+      <td style="padding:5px 8px;font-size:12px;color:#4A5A68;font-weight:500;background:#F2F7F9;width:120px;">${label}</td>
       ${cell(col.escrow)}
       ${isPurchase ? cell(col.buyersAgent) + cell(col.sellersAgent) : ''}
     </tr>`
@@ -94,18 +94,18 @@ function contactRows(data: FormData): string {
 function buildHtml(d: FormData): string {
   return `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"/></head>
-<body style="margin:0;padding:0;background:#F7F7F8;font-family:'DM Sans','Segoe UI',Arial,Helvetica,sans-serif;">
+<body style="margin:0;padding:0;background:#FFFFFF;font-family:Inter,'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;">
 <div style="max-width:720px;margin:32px auto;background:#fff;border-radius:3px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
 
   <!-- Header -->
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#24788F;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#1F7C93;">
     <tr>
       <td style="padding:20px 28px;">
         <div style="color:#fff;font-size:22px;font-weight:800;letter-spacing:-0.5px;">CLOSING DOC ORDER</div>
-        <div style="color:#EDF4F6;font-size:12px;margin-top:2px;">DEFY TPO — Broker Portal</div>
+        <div style="color:#FFFFFF;font-size:12px;margin-top:2px;">DEFY TPO — Broker Portal</div>
       </td>
       <td style="padding:20px 28px;text-align:right;">
-        <div style="color:#EDF4F6;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;">Defy Loan Number</div>
+        <div style="color:#FFFFFF;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;">Defy Loan Number</div>
         <div style="color:#fff;font-size:20px;font-weight:700;">${d.loanNumber || 'N/A'}</div>
       </td>
     </tr>
@@ -114,7 +114,7 @@ function buildHtml(d: FormData): string {
   <div style="padding:24px 28px;">
 
     <!-- Loan Details -->
-    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;margin-bottom:20px;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #D8DCE2;border-radius:8px;overflow:hidden;margin-bottom:20px;">
       ${sectionHead('Loan Details')}
       ${tr('Borrower(s) Last Name', d.borrowerLastName)}
       ${tr('Loan Amount', d.loanAmount)}
@@ -126,10 +126,10 @@ function buildHtml(d: FormData): string {
     </table>
 
     <!-- Contact Information -->
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#24788F;border-bottom:2px solid #24788F;padding-bottom:6px;margin-bottom:12px;">Contact Information</div>
-    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #E2E8F0;margin-bottom:12px;">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#1F7C93;border-bottom:2px solid #1F7C93;padding-bottom:6px;margin-bottom:12px;">Contact Information</div>
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #D8DCE2;margin-bottom:12px;">
       <thead>
-        <tr style="background:#24788F;">
+        <tr style="background:#1F7C93;">
           <th style="padding:6px 8px;color:#fff;font-size:11px;text-align:left;width:120px;"> </th>
           <th style="padding:6px 8px;color:#fff;font-size:11px;text-align:left;">Escrow/Settlement</th>
           ${d.transactionType === 'Purchase' ? `
@@ -139,15 +139,15 @@ function buildHtml(d: FormData): string {
       </thead>
       <tbody>${contactRows(d)}</tbody>
     </table>
-    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;margin-bottom:20px;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #D8DCE2;border-radius:8px;overflow:hidden;margin-bottom:20px;">
       ${tr('Title Holders', d.titleHolders)}
       ${tr('Vesting Method', d.vestingMethod)}
       ${tr('Email for Closing Doc Delivery', d.closingDocEmail)}
     </table>
 
     <!-- Fee Details -->
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#24788F;border-bottom:2px solid #24788F;padding-bottom:6px;margin-bottom:12px;">Broker Fee Details</div>
-    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;margin-bottom:20px;">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#1F7C93;border-bottom:2px solid #1F7C93;padding-bottom:6px;margin-bottom:12px;">Broker Fee Details</div>
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #D8DCE2;border-radius:8px;overflow:hidden;margin-bottom:20px;">
       ${sectionHead('Standard Fees')}
       ${tr('Origination Fee', d.originationFee)}
       ${tr('Paid to Defy Discount Fee', d.discountFee)}
@@ -158,38 +158,38 @@ function buildHtml(d: FormData): string {
       ${tr('Misc Fee #2', d.miscFee2)}
       ${tr('Processing Fee — Paid to 3rd Party', d.processingFee3rdParty)}
 
-      <tr style="background:#EDF4F6;">
-        <td style="padding:10px 12px;font-size:14px;font-weight:700;color:#24788F;">EXPECTED TOTAL</td>
-        <td style="padding:10px 12px;font-size:14px;font-weight:700;color:#24788F;">${d.expectedTotal || '—'}</td>
+      <tr style="background:#1F7C93;">
+        <td style="padding:10px 12px;font-size:14px;font-weight:700;color:#FFFFFF;">EXPECTED TOTAL</td>
+        <td style="padding:10px 12px;font-size:14px;font-weight:700;color:#FFFFFF;">${d.expectedTotal || '—'}</td>
       </tr>
       <tr>
-        <td style="padding:8px 12px;font-size:12px;color:#45454D;border-top:1px solid #E2E8F0;">
+        <td style="padding:8px 12px;font-size:12px;color:#4A5A68;border-top:1px solid #D8DCE2;">
           Broker Credit to Borrower<br/>
-          <span style="font-size:10px;color:#6B6B76;">shown separately — not included in the total</span>
+          <span style="font-size:10px;color:#4A5A68;">shown separately — not included in the total</span>
         </td>
-        <td style="padding:8px 12px;font-size:13px;color:#131316;border-top:1px solid #E2E8F0;">${d.brokerCredit || '—'}</td>
+        <td style="padding:8px 12px;font-size:13px;color:#0A0E17;border-top:1px solid #D8DCE2;">${d.brokerCredit || '—'}</td>
       </tr>
       ${tr('Authorized By (Full Name)', d.authorizedBy)}
     </table>
 
     ${d.notes ? `
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#24788F;border-bottom:2px solid #24788F;padding-bottom:6px;margin-bottom:8px;">Notes to Doc Drawing Team</div>
-    <div style="background:#F7F7F8;border:1px solid #E2E8F0;border-radius:8px;padding:12px;font-size:13px;color:#334155;line-height:1.6;margin-bottom:20px;">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#1F7C93;border-bottom:2px solid #1F7C93;padding-bottom:6px;margin-bottom:8px;">Notes to Doc Drawing Team</div>
+    <div style="background:#F2F7F9;border:1px solid #D8DCE2;border-radius:8px;padding:12px;font-size:13px;color:#4A5A68;line-height:1.6;margin-bottom:20px;">
       ${d.notes.replace(/\n/g, '<br/>')}
     </div>` : ''}
 
     <!-- Checklist reminder -->
-    <div style="background:#E6EEF1;border-radius:8px;padding:12px 16px;border:1px solid #cbd5e1;">
-      <div style="font-size:11px;font-weight:700;color:#24788F;margin-bottom:4px;">PLEASE INCLUDE WITH THIS ORDER:</div>
-      <ul style="margin:0;padding-left:16px;font-size:12px;color:#475569;line-height:1.8;">
+    <div style="background:#F2F7F9;border-radius:8px;padding:12px 16px;border:1px solid #D8DCE2;">
+      <div style="font-size:11px;font-weight:700;color:#0A0E17;margin-bottom:4px;">PLEASE INCLUDE WITH THIS ORDER:</div>
+      <ul style="margin:0;padding-left:16px;font-size:12px;color:#4A5A68;line-height:1.8;">
         <li>Invoices: Any/All 3rd Party Invoices to be collected at closing (Credit / Survey / Processing if 3rd Party)</li>
         <li>Updated Escrow/Title Fee Sheet showing correct loan amount and all fees</li>
       </ul>
     </div>
   </div>
 
-  <div style="background:#24788F;padding:12px 28px;text-align:center;">
-    <div style="color:#EDF4F6;font-size:11px;">Defy Mortgage, LLC &middot; NMLS #2383214</div>
+  <div style="background:#1F7C93;padding:12px 28px;text-align:center;">
+    <div style="color:#FFFFFF;font-size:11px;">Defy Mortgage, LLC &middot; NMLS #2383214</div>
   </div>
 
 </div>
