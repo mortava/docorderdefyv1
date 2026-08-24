@@ -173,7 +173,7 @@ function FieldInput({
 }) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
-      <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+      <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
         {label}{required && <span className="text-error ml-0.5">*</span>}
       </label>
       <input
@@ -182,7 +182,7 @@ function FieldInput({
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         required={required}
-        className="h-9 rounded-[3px] border border-gray-300 bg-white px-3 text-sm text-gray-900
+        className="h-10 rounded-[3px] border border-gray-300 bg-white px-3 text-sm text-gray-900
           placeholder:text-gray-400 focus:outline-none focus:border-primary focus:ring-2
           focus:ring-primary/20 transition-all"
       />
@@ -203,11 +203,11 @@ function SelectInput({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">{label}</label>
+      <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">{label}</label>
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="h-9 rounded-[3px] border border-gray-300 bg-white px-3 text-sm text-gray-900
+        className="h-10 rounded-[3px] border border-gray-300 bg-white px-3 text-sm text-gray-900
           focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
       >
         {options.map(o => <option key={o}>{o}</option>)}
@@ -232,7 +232,7 @@ function ContactPartyBlock({
 }) {
   return (
     <div>
-      <div className="text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] px-3 py-2">
+      <div className="text-[11px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] px-3 py-2">
         {title}
       </div>
       <div className="border border-t-0 border-gray-200 rounded-b-[3px] p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -281,7 +281,7 @@ function FeeRow({
             onChange(raw === '' ? '' : formatMoney(parseMoney(raw)))
           }}
           readOnly={readOnly}
-          className={`w-full h-8 rounded-[3px] border px-2 text-sm transition-all
+          className={`w-full h-10 rounded-[3px] border px-2 text-sm transition-all
             placeholder:text-gray-400
             ${readOnly
               ? 'border-gray-200 bg-gray-50 text-gray-700 cursor-default'
@@ -518,10 +518,10 @@ export default function App() {
               <div className="defy-scroll-x"><table className="w-full">
                 <thead>
                   <tr>
-                    <th className="text-left text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3">
+                    <th className="text-left text-[11px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3">
                       Fee Description
                     </th>
-                    <th className="text-left text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3 w-36">
+                    <th className="text-left text-[11px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3 w-36">
                       Total Amount
                     </th>
                   </tr>
@@ -538,16 +538,16 @@ export default function App() {
               <div className="defy-scroll-x"><table className="w-full">
                 <thead>
                   <tr>
-                    <th className="text-left text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3">
+                    <th className="text-left text-[11px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3">
                       Other Fees
                     </th>
-                    <th className="text-left text-[10px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3 w-36">
+                    <th className="text-left text-[11px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3 w-36">
                       Amount
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  <FeeRow label="Misc Fee #2*" value={form.miscFee2} onChange={v => set('miscFee2', v)} />
+                  <FeeRow label="Misc Fee #2" value={form.miscFee2} onChange={v => set('miscFee2', v)} />
                   <FeeRow label="Processing Fee — Paid to 3rd Party" value={form.processingFee3rdParty} onChange={v => set('processingFee3rdParty', v)} />
                 </tbody>
               </table></div>
@@ -557,7 +557,7 @@ export default function App() {
                 of the total. It is a credit, not a charge — it is NOT summed. */}
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
                   Broker Credit to Borrower
                 </label>
                 <input
@@ -570,24 +570,24 @@ export default function App() {
                     const raw = e.target.value.trim()
                     set('brokerCredit', raw === '' ? '' : formatMoney(parseMoney(raw)))
                   }}
-                  className="h-9 rounded-[3px] border border-gray-300 bg-white px-3 text-sm text-gray-900
+                  className="h-10 rounded-[3px] border border-gray-300 bg-white px-3 text-sm text-gray-900
                     placeholder:text-gray-400 focus:outline-none focus:border-primary focus:ring-2
                     focus:ring-primary/20 transition-all"
                 />
-                <p className="text-[10px] text-gray-500">Shown separately — not included in the total.</p>
+                <p className="text-[11px] text-gray-500">Shown separately — not included in the total.</p>
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+                <label className="text-[11px] font-semibold uppercase tracking-wider text-primary">
                   Expected Total
                 </label>
                 <output
-                  className="h-9 flex items-center rounded-[3px] border border-primary/30 bg-primary-light
+                  className="h-10 flex items-center rounded-[3px] border border-primary/30 bg-primary-light
                     px-3 text-sm font-semibold text-primary tabular-nums"
                 >
                   {formatMoney(total)}
                 </output>
-                <p className="text-[10px] text-gray-500">Calculated from the fees above.</p>
+                <p className="text-[11px] text-gray-500">Calculated from the fees above.</p>
               </div>
             </div>
 
@@ -608,8 +608,8 @@ export default function App() {
               Additional Information
             </h2>
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
-                *Notes to the Doc Drawing Team
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                Notes to the Doc Drawing Team
               </label>
               <textarea
                 value={form.notes}
