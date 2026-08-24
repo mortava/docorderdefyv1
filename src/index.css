@@ -73,8 +73,18 @@
   *, *::before, *::after { box-sizing: border-box; }
 
   /* Embedded-app guards — this form renders inside a parent site.
-     Horizontal overflow and container drift are the two failure modes. */
-  html, body {
+     Horizontal overflow and container drift are the two failure modes.
+
+     overflow-x is clamped on BODY only, deliberately. Setting it on `html`
+     turns the root into its own scroll container, which makes the browser
+     render a non-standard vertical scrollbar. The viewport keeps its normal
+     scrollbar this way, and horizontal overflow is still contained. */
+  html {
+    max-width: 100%;
+    scrollbar-width: auto; /* never `thin` — standard OS scrollbar */
+  }
+
+  body {
     max-width: 100%;
     overflow-x: hidden;
     overscroll-behavior: none;
@@ -109,9 +119,14 @@
     font-family: var(--font-sans);
   }
 
-  /* Focus ring is always visible — 2px, brand teal. */
+  /* Keyboard focus must be unmistakable when tabbing through the form.
+     `!important` is deliberate: the inputs carry Tailwind's `focus:outline-none`
+     utility (specificity 0,2,0), which outranks a plain `:focus-visible` rule
+     (0,1,0). Without this override, tabbing shows only a faint 20%-opacity ring
+     and the user cannot tell which field they are on. Mouse clicks are
+     unaffected — :focus-visible only matches keyboard focus. */
   :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--color-primary) !important;
     outline-offset: 2px;
   }
 }
