@@ -38,17 +38,13 @@ interface FormData {
   closingDocEmail: string
 
   originationFee: string
-  uwFee: string
   discountFee: string
   processingFeeBroker: string
   creditReportFee: string
   brokerYspCredit: string
   miscFee2: string
-  appraisalFeeDue: string
-  appraisalFeePoc: string
   processingFee3rdParty: string
   brokerCredit: string
-  expectedTotal: string
   authorizedBy: string
 
   notes: string
@@ -65,6 +61,42 @@ type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error'
 
 function emptyContact(): ContactColumn {
   return { escrow: '', buyersAgent: '', sellersAgent: '' }
+}
+
+// ── Money ──────────────────────────────────────────────────────────────────
+// Fee inputs are dollars only. Never parse a displayed value with Number() —
+// "$1,695.00" is NaN. Strip the formatting first.
+
+function parseMoney(raw: string): number {
+  if (!raw) return 0
+  const negative = /^\s*[(-]/.test(raw)
+  const n = parseFloat(raw.replace(/[^0-9.]/g, ''))
+  if (!isFinite(n)) return 0
+  return negative ? -n : n
+}
+
+function formatMoney(n: number): string {
+  const sign = n < 0 ? '-' : ''
+  return `${sign}$${Math.abs(n).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`
+}
+
+// Fee fields that roll into Expected Total. Broker Credit to Borrower is
+// deliberately absent — it is shown on its own beside the total, not summed.
+const TOTALED_FEE_KEYS = [
+  'originationFee',
+  'discountFee',
+  'processingFeeBroker',
+  'creditReportFee',
+  'brokerYspCredit',
+  'miscFee2',
+  'processingFee3rdParty',
+] as const
+
+function expectedTotal(form: FormData): number {
+  return TOTALED_FEE_KEYS.reduce((sum, k) => sum + parseMoney(form[k]), 0)
 }
 
 // Field rows shared by every contact party.
@@ -105,17 +137,13 @@ const initialForm = (): FormData => ({
   closingDocEmail: '',
 
   originationFee: '',
-  uwFee: '$1,695',
   discountFee: '0',
   processingFeeBroker: '',
   creditReportFee: '',
   brokerYspCredit: '',
   miscFee2: '',
-  appraisalFeeDue: '',
-  appraisalFeePoc: '',
   processingFee3rdParty: '',
   brokerCredit: '',
-  expectedTotal: '',
   authorizedBy: '',
 
   notes: '',
@@ -219,6 +247,7 @@ function ContactPartyBlock({
 }
 
 
+// Dollar-only fee input. Types freely, normalises to $0.00 on blur.
 function FeeRow({
   label,
   value,
@@ -240,10 +269,17 @@ function FeeRow({
       <td className="py-1.5">
         <input
           type="text"
+          inputMode="decimal"
           value={value}
+          placeholder="$0.00"
           onChange={e => onChange(e.target.value)}
+          onBlur={e => {
+            const raw = e.target.value.trim()
+            onChange(raw === '' ? '' : formatMoney(parseMoney(raw)))
+          }}
           readOnly={readOnly}
           className={`w-full h-8 rounded-[3px] border px-2 text-sm transition-all
+            placeholder:text-gray-400
             ${readOnly
               ? 'border-gray-200 bg-gray-50 text-gray-700 cursor-default'
               : 'border-gray-300 bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20'
@@ -264,6 +300,7 @@ export default function App() {
   const [errorMsg, setErrorMsg] = useState('')
 
   const isPurchase = form.transactionType === 'Purchase'
+  const total = expectedTotal(form)
 
   const set = useCallback(<K extends keyof FormData>(key: K, value: FormData[K]) => {
     setForm(prev => ({ ...prev, [key]: value }))
@@ -288,7 +325,8 @@ export default function App() {
       const res = await fetch('/api/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        // expectedTotal is derived, not stored — compute it for the email.
+        body: JSON.stringify({ ...form, expectedTotal: formatMoney(expectedTotal(form)) }),
       })
 
       const json = await res.json()
@@ -471,9 +509,8 @@ export default function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  <FeeRow label="Origination Fee (%/$)" value={form.originationFee} onChange={v => set('originationFee', v)} />
-                  <FeeRow label="Underwriting Fee" value={form.uwFee} onChange={v => set('uwFee', v)} readOnly />
-                  <FeeRow label="Paid to Defy Discount Fee (%/$)" value={form.discountFee} onChange={v => set('discountFee', v)} readOnly />
+                  <FeeRow label="Origination Fee" value={form.originationFee} onChange={v => set('originationFee', v)} />
+                  <FeeRow label="Paid to Defy Discount Fee" value={form.discountFee} onChange={v => set('discountFee', v)} readOnly />
                   <FeeRow label="Processing Fee — Broker Charged" value={form.processingFeeBroker} onChange={v => set('processingFeeBroker', v)} />
                   <FeeRow label="Credit Report Fee" value={form.creditReportFee} onChange={v => set('creditReportFee', v)} />
                   <FeeRow label="Broker YSP Credit (DSCR Only)" value={form.brokerYspCredit} onChange={v => set('brokerYspCredit', v)} />
@@ -493,26 +530,56 @@ export default function App() {
                 </thead>
                 <tbody>
                   <FeeRow label="Misc Fee #2*" value={form.miscFee2} onChange={v => set('miscFee2', v)} />
-                  <FeeRow label="Appraisal Fee — DUE" value={form.appraisalFeeDue} onChange={v => set('appraisalFeeDue', v)} />
-                  <FeeRow label="Appraisal Fee — POC" value={form.appraisalFeePoc} onChange={v => set('appraisalFeePoc', v)} />
                   <FeeRow label="Processing Fee — Paid to 3rd Party" value={form.processingFee3rdParty} onChange={v => set('processingFee3rdParty', v)} />
-                  <FeeRow label="Broker Credit to Borrower (%)" value={form.brokerCredit} onChange={v => set('brokerCredit', v)} />
                 </tbody>
               </table></div>
             </div>
 
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FieldInput
-                label="Expected Total $"
-                value={form.expectedTotal}
-                onChange={v => set('expectedTotal', v)}
-                placeholder="$0.00"
-              />
+            {/* Borrower credit sits apart from the fee tables, immediately left
+                of the total. It is a credit, not a charge — it is NOT summed. */}
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                  Broker Credit to Borrower
+                </label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={form.brokerCredit}
+                  placeholder="$0.00"
+                  onChange={e => set('brokerCredit', e.target.value)}
+                  onBlur={e => {
+                    const raw = e.target.value.trim()
+                    set('brokerCredit', raw === '' ? '' : formatMoney(parseMoney(raw)))
+                  }}
+                  className="h-9 rounded-[3px] border border-gray-300 bg-white px-3 text-sm text-gray-900
+                    placeholder:text-gray-400 focus:outline-none focus:border-primary focus:ring-2
+                    focus:ring-primary/20 transition-all"
+                />
+                <p className="text-[10px] text-gray-500">Shown separately — not included in the total.</p>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+                  Expected Total
+                </label>
+                <output
+                  className="h-9 flex items-center rounded-[3px] border border-primary/30 bg-primary-light
+                    px-3 text-sm font-semibold text-primary tabular-nums"
+                >
+                  {formatMoney(total)}
+                </output>
+                <p className="text-[10px] text-gray-500">Calculated from the fees above.</p>
+              </div>
+            </div>
+
+            <div className="mt-4">
               <FieldInput
                 label="This Form is Authorized By (Full Name)"
                 value={form.authorizedBy}
                 onChange={v => set('authorizedBy', v)}
                 required
+                className="w-full"
               />
             </div>
           </div>

@@ -42,14 +42,11 @@ interface FormData {
   vestingMethod: string
   closingDocEmail: string
   originationFee: string
-  uwFee: string
   discountFee: string
   processingFeeBroker: string
   creditReportFee: string
   brokerYspCredit: string
   miscFee2: string
-  appraisalFeeDue: string
-  appraisalFeePoc: string
   processingFee3rdParty: string
   brokerCredit: string
   expectedTotal: string
@@ -152,21 +149,25 @@ function buildHtml(d: FormData): string {
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#24788F;border-bottom:2px solid #24788F;padding-bottom:6px;margin-bottom:12px;">Broker Fee Details</div>
     <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;margin-bottom:20px;">
       ${sectionHead('Standard Fees')}
-      ${tr('Origination Fee (%/$)', d.originationFee)}
-      ${tr('Underwriting Fee', d.uwFee)}
-      ${tr('Paid to Defy Discount Fee (%/$)', d.discountFee)}
+      ${tr('Origination Fee', d.originationFee)}
+      ${tr('Paid to Defy Discount Fee', d.discountFee)}
       ${tr('Processing Fee — Broker Charged', d.processingFeeBroker)}
       ${tr('Credit Report Fee', d.creditReportFee)}
       ${tr('Broker YSP Credit (DSCR Only)', d.brokerYspCredit)}
       ${sectionHead('Other Fees')}
       ${tr('Misc Fee #2', d.miscFee2)}
-      ${tr('Appraisal Fee — DUE', d.appraisalFeeDue)}
-      ${tr('Appraisal Fee — POC', d.appraisalFeePoc)}
       ${tr('Processing Fee — Paid to 3rd Party', d.processingFee3rdParty)}
-      ${tr('Broker Credit to Borrower (%)', d.brokerCredit)}
-      <tr style="background:#E6EEF1;">
+
+      <tr style="background:#EDF4F6;">
         <td style="padding:10px 12px;font-size:14px;font-weight:700;color:#24788F;">EXPECTED TOTAL</td>
         <td style="padding:10px 12px;font-size:14px;font-weight:700;color:#24788F;">${d.expectedTotal || '—'}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 12px;font-size:12px;color:#45454D;border-top:1px solid #E2E8F0;">
+          Broker Credit to Borrower<br/>
+          <span style="font-size:10px;color:#6B6B76;">shown separately — not included in the total</span>
+        </td>
+        <td style="padding:8px 12px;font-size:13px;color:#131316;border-top:1px solid #E2E8F0;">${d.brokerCredit || '—'}</td>
       </tr>
       ${tr('Authorized By (Full Name)', d.authorizedBy)}
     </table>
