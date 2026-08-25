@@ -24,10 +24,7 @@ interface FormData {
   occupancyType: string
 
   brokerName: ContactColumn
-  stateLic: ContactColumn
-  nmlsId: ContactColumn
   address: ContactColumn
-  cityStZip: ContactColumn
   contact: ContactColumn
   contactLic: ContactColumn
   email: ContactColumn
@@ -36,9 +33,9 @@ interface FormData {
   titleHolders: string
   vestingMethod: string
   closingDocEmail: string
+  closingType: string
 
   originationFee: string
-  discountFee: string
   processingFeeBroker: string
   creditReportFee: string
   brokerYspCredit: string
@@ -86,34 +83,45 @@ function formatMoney(n: number): string {
   })}`
 }
 
-// Fee fields that roll into Expected Total. Broker Credit to Borrower is
-// deliberately absent — it is shown on its own beside the total, not summed.
-const TOTALED_FEE_KEYS = [
+// Which fees roll into which total. Jay, 2026-08-25: Credit Report and
+// Misc #2 are broker-side; only the 3rd-party processing fee is a pass-through.
+// Broker Credit to Borrower is in neither — it is shown on its own, not summed.
+const BROKER_FEE_KEYS = [
   'originationFee',
-  'discountFee',
   'processingFeeBroker',
   'creditReportFee',
-  'brokerYspCredit',
   'miscFee2',
+  'brokerYspCredit',
+] as const
+
+const THIRD_PARTY_FEE_KEYS = [
   'processingFee3rdParty',
 ] as const
 
-function expectedTotal(form: FormData): number {
-  return TOTALED_FEE_KEYS.reduce((sum, k) => sum + parseMoney(form[k]), 0)
-}
+const sumFees = (form: FormData, keys: readonly (keyof FormData)[]) =>
+  keys.reduce((sum, k) => sum + parseMoney(form[k] as string), 0)
+
+const brokerTotal = (form: FormData) => sumFees(form, BROKER_FEE_KEYS)
+const thirdPartyTotal = (form: FormData) => sumFees(form, THIRD_PARTY_FEE_KEYS)
 
 // Field rows shared by every contact party.
 const CONTACT_FIELDS: Array<{ label: string; key: ContactFieldKey }> = [
   { label: 'Company Name',           key: 'brokerName' },
-  { label: 'State Lic #',            key: 'stateLic' },
-  { label: 'NMLS ID',                key: 'nmlsId' },
-  { label: 'Address',                key: 'address' },
-  { label: 'City/St/Zip',            key: 'cityStZip' },
   { label: 'Contact',                key: 'contact' },
-  { label: 'Contact Lic # (If App)', key: 'contactLic' },
-  { label: 'Email @',                key: 'email' },
   { label: 'Phone #',                key: 'phone' },
+  { label: 'Email @',                key: 'email' },
+  { label: 'Address',                key: 'address' },
+  { label: 'Contact Lic # (If App)', key: 'contactLic' },
 ]
+
+const VESTING_METHODS = [
+  '',
+  'Entity / LLC',
+  'Natural Person(s)',
+  'TRUST (Must have Prior Approval*)',
+]
+
+const CLOSING_TYPES = ['In Office', 'Mobile', 'Mail Away', 'E-Note', 'Foreign Embassy']
 
 const initialForm = (): FormData => ({
   loanNumber: '',
@@ -126,10 +134,7 @@ const initialForm = (): FormData => ({
   occupancyType: 'Primary',
 
   brokerName: emptyContact(),
-  stateLic: emptyContact(),
-  nmlsId: emptyContact(),
   address: emptyContact(),
-  cityStZip: emptyContact(),
   contact: emptyContact(),
   contactLic: emptyContact(),
   email: emptyContact(),
@@ -138,9 +143,9 @@ const initialForm = (): FormData => ({
   titleHolders: '',
   vestingMethod: '',
   closingDocEmail: '',
+  closingType: 'Mobile',
 
   originationFee: '',
-  discountFee: '0',
   processingFeeBroker: '',
   creditReportFee: '',
   brokerYspCredit: '',
@@ -224,18 +229,18 @@ function ContactPartyBlock({
   party,
   form,
   onChange,
+  children,
 }: {
   title: string
   party: ContactParty
   form: FormData
   onChange: (key: ContactFieldKey, value: ContactColumn) => void
+  children?: React.ReactNode
 }) {
   return (
     <div>
-      <div className="text-[11px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] px-3 py-2">
-        {title}
-      </div>
-      <div className="border border-t-0 border-gray-200 rounded-b-[3px] p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <SectionBar>{title}</SectionBar>
+      <div className="border border-t-0 border-gray-200 rounded-b-[3px] p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {CONTACT_FIELDS.map(({ label, key }) => (
           <FieldInput
             key={key}
@@ -244,11 +249,35 @@ function ContactPartyBlock({
             onChange={v => onChange(key, { ...form[key], [party]: v })}
           />
         ))}
+        {children}
       </div>
     </div>
   )
 }
 
+// Teal block header shared by the contact, vesting and closing-type sections.
+function SectionBar({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="text-[11px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] px-3 py-2">
+      {children}
+    </div>
+  )
+}
+
+
+// Calculated total closing a fee table. Read-only by construction.
+function TotalRow({ label, value }: { label: string; value: number }) {
+  return (
+    <tr className="bg-primary">
+      <td className="py-2 pr-3 pl-3 text-[11px] font-bold uppercase tracking-wider text-white whitespace-nowrap">
+        {label}
+      </td>
+      <td className="py-2 px-3 text-sm font-bold text-white tabular-nums">
+        {formatMoney(value)}
+      </td>
+    </tr>
+  )
+}
 
 // Dollar-only fee input. Types freely, normalises to $0.00 on blur.
 function FeeRow({
@@ -303,7 +332,8 @@ export default function App() {
   const [errorMsg, setErrorMsg] = useState('')
 
   const isPurchase = form.transactionType === 'Purchase'
-  const total = expectedTotal(form)
+  const broker = brokerTotal(form)
+  const thirdParty = thirdPartyTotal(form)
 
   const set = useCallback(<K extends keyof FormData>(key: K, value: FormData[K]) => {
     setForm(prev => ({ ...prev, [key]: value }))
@@ -328,8 +358,12 @@ export default function App() {
       const res = await fetch('/api/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // expectedTotal is derived, not stored — compute it for the email.
-        body: JSON.stringify({ ...form, expectedTotal: formatMoney(expectedTotal(form)) }),
+        // Totals are derived, not stored — compute them for the email.
+        body: JSON.stringify({
+          ...form,
+          brokerTotal: formatMoney(brokerTotal(form)),
+          thirdPartyTotal: formatMoney(thirdPartyTotal(form)),
+        }),
       })
 
       const json = await res.json()
@@ -437,7 +471,7 @@ export default function App() {
                 label="Loan Product"
                 value={form.loanProduct}
                 onChange={v => set('loanProduct', v)}
-                options={['30yr Fixed', '15yr Fixed', '40yr Fixed', '5/6 ARM', '7/6 ARM', '10/6 ARM', 'I/O Fixed', 'I/O ARM']}
+                options={['30yr Fixed', '40yr Fixed', '30yr I/O', '40yr I/O', '15yr Fixed', '20yr Fixed']}
               />
               <SelectInput
                 label="Loan Purpose"
@@ -461,11 +495,19 @@ export default function App() {
             </h2>
             <div className="space-y-6">
               <ContactPartyBlock
-                title="Escrow / Settlement"
+                title="Title / Escrow Contact"
                 party="escrow"
                 form={form}
                 onChange={setContact}
-              />
+              >
+                <FieldInput
+                  label="Email for Closing Doc Delivery"
+                  value={form.closingDocEmail}
+                  onChange={v => set('closingDocEmail', v)}
+                  type="email"
+                  required
+                />
+              </ContactPartyBlock>
               {isPurchase && (
                 <ContactPartyBlock
                   title="Purchase — Buyer's Agent"
@@ -484,28 +526,47 @@ export default function App() {
               )}
             </div>
 
-            <div className="mt-4 space-y-3">
-              <FieldInput
-                label="List all names that will hold Title"
-                value={form.titleHolders}
-                onChange={v => set('titleHolders', v)}
-                className="w-full"
-                required
-              />
-              <FieldInput
-                label="Preferred Vesting Method for this Loan"
-                value={form.vestingMethod}
-                onChange={v => set('vestingMethod', v)}
-                className="w-full"
-              />
-              <FieldInput
-                label="Email for Closing Doc Delivery"
-                value={form.closingDocEmail}
-                onChange={v => set('closingDocEmail', v)}
-                type="email"
-                required
-                className="w-full"
-              />
+            {/* Vesting and Closing Type sit side by side — one closing has one
+                type, so these are radios, not checkboxes. */}
+            <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <SectionBar>Vesting</SectionBar>
+                <div className="border border-t-0 border-gray-200 rounded-b-[3px] p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <SelectInput
+                    label="Preferred Vesting Method for this Loan"
+                    value={form.vestingMethod}
+                    onChange={v => set('vestingMethod', v)}
+                    options={VESTING_METHODS}
+                  />
+                  <FieldInput
+                    label="List all names that will hold Title"
+                    value={form.titleHolders}
+                    onChange={v => set('titleHolders', v)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <SectionBar>Closing Type</SectionBar>
+                <div className="border border-t-0 border-gray-200 rounded-b-[3px] p-4 flex flex-col gap-2">
+                  {/* py-1.5 keeps each label — the real activation target —
+                      above the 24px WCAG 2.2 minimum. */}
+                  {CLOSING_TYPES.map(t => (
+                    <label key={t} className="flex items-center gap-2 py-1.5 text-sm text-gray-900 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="closingType"
+                        value={t}
+                        checked={form.closingType === t}
+                        onChange={() => set('closingType', t)}
+                        className="w-4 h-4 accent-primary"
+                      />
+                      {t}
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -519,7 +580,7 @@ export default function App() {
                 <thead>
                   <tr>
                     <th className="text-left text-[11px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3">
-                      Fee Description
+                      Broker Fees
                     </th>
                     <th className="text-left text-[11px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3 w-36">
                       Total Amount
@@ -528,10 +589,11 @@ export default function App() {
                 </thead>
                 <tbody>
                   <FeeRow label="Origination Fee" value={form.originationFee} onChange={v => set('originationFee', v)} />
-                  <FeeRow label="Paid to Defy Discount Fee" value={form.discountFee} onChange={v => set('discountFee', v)} readOnly />
                   <FeeRow label="Processing Fee — Broker Charged" value={form.processingFeeBroker} onChange={v => set('processingFeeBroker', v)} />
                   <FeeRow label="Credit Report Fee" value={form.creditReportFee} onChange={v => set('creditReportFee', v)} />
+                  <FeeRow label="Misc Fee #2" value={form.miscFee2} onChange={v => set('miscFee2', v)} />
                   <FeeRow label="Broker YSP Credit (DSCR Only)" value={form.brokerYspCredit} onChange={v => set('brokerYspCredit', v)} />
+                  <TotalRow label="Broker Total" value={broker} />
                 </tbody>
               </table></div>
 
@@ -539,7 +601,7 @@ export default function App() {
                 <thead>
                   <tr>
                     <th className="text-left text-[11px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3">
-                      Other Fees
+                      Third Party Fees
                     </th>
                     <th className="text-left text-[11px] font-bold uppercase tracking-wider text-white bg-primary rounded-t-[3px] py-2 px-3 w-36">
                       Amount
@@ -547,14 +609,14 @@ export default function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  <FeeRow label="Misc Fee #2" value={form.miscFee2} onChange={v => set('miscFee2', v)} />
                   <FeeRow label="Processing Fee — Paid to 3rd Party" value={form.processingFee3rdParty} onChange={v => set('processingFee3rdParty', v)} />
+                  <TotalRow label="Third Party Total" value={thirdParty} />
                 </tbody>
               </table></div>
             </div>
 
-            {/* Borrower credit sits apart from the fee tables, immediately left
-                of the total. It is a credit, not a charge — it is NOT summed. */}
+            {/* Borrower credit sits apart from the fee tables. It is a credit,
+                not a charge — it is in neither total. */}
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
                 <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
@@ -574,30 +636,14 @@ export default function App() {
                     placeholder:text-gray-400 focus:outline-none focus:border-primary focus:ring-2
                     focus:ring-primary/20 transition-all"
                 />
-                <p className="text-[11px] text-gray-500">Shown separately — not included in the total.</p>
+                <p className="text-[11px] text-gray-500">Shown separately — in neither total.</p>
               </div>
 
-              <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-                  Expected Total
-                </label>
-                <output
-                  className="h-10 flex items-center rounded-[3px] border border-primary/30 bg-primary-light
-                    px-3 text-sm font-semibold text-primary tabular-nums"
-                >
-                  {formatMoney(total)}
-                </output>
-                <p className="text-[11px] text-gray-500">Calculated from the fees above.</p>
-              </div>
-            </div>
-
-            <div className="mt-4">
               <FieldInput
                 label="This Form is Authorized By (Full Name)"
                 value={form.authorizedBy}
                 onChange={v => set('authorizedBy', v)}
                 required
-                className="w-full"
               />
             </div>
           </div>

@@ -30,10 +30,7 @@ interface FormData {
   transactionType: string
   occupancyType: string
   brokerName: ContactColumn
-  stateLic: ContactColumn
-  nmlsId: ContactColumn
   address: ContactColumn
-  cityStZip: ContactColumn
   contact: ContactColumn
   contactLic: ContactColumn
   email: ContactColumn
@@ -41,15 +38,16 @@ interface FormData {
   titleHolders: string
   vestingMethod: string
   closingDocEmail: string
+  closingType: string
   originationFee: string
-  discountFee: string
   processingFeeBroker: string
   creditReportFee: string
   brokerYspCredit: string
   miscFee2: string
   processingFee3rdParty: string
   brokerCredit: string
-  expectedTotal: string
+  brokerTotal: string
+  thirdPartyTotal: string
   authorizedBy: string
   notes: string
 }
@@ -69,14 +67,11 @@ function sectionHead(title: string) {
 function contactRows(data: FormData): string {
   const fields: Array<{ label: string; key: keyof FormData }> = [
     { label: 'Company Name',           key: 'brokerName' },
-    { label: 'State Lic #',            key: 'stateLic' },
-    { label: 'NMLS ID',               key: 'nmlsId' },
-    { label: 'Address',               key: 'address' },
-    { label: 'City/St/Zip',           key: 'cityStZip' },
-    { label: 'Contact',               key: 'contact' },
+    { label: 'Contact',                key: 'contact' },
+    { label: 'Phone #',                key: 'phone' },
+    { label: 'Email @',                key: 'email' },
+    { label: 'Address',                key: 'address' },
     { label: 'Contact Lic # (If App)', key: 'contactLic' },
-    { label: 'Email @',               key: 'email' },
-    { label: 'Phone #',               key: 'phone' },
   ]
   const isPurchase = data.transactionType === 'Purchase'
   return fields.map(({ label, key }) => {
@@ -126,12 +121,12 @@ function buildHtml(d: FormData): string {
     </table>
 
     <!-- Contact Information -->
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#1F7C93;border-bottom:2px solid #1F7C93;padding-bottom:6px;margin-bottom:12px;">Contact Information</div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#1F7C93;border-bottom:2px solid #1F7C93;padding-bottom:6px;margin-bottom:12px;">Title / Escrow Contact</div>
     <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #D8DCE2;margin-bottom:12px;">
       <thead>
         <tr style="background:#1F7C93;">
           <th style="padding:6px 8px;color:#fff;font-size:11px;text-align:left;width:120px;"> </th>
-          <th style="padding:6px 8px;color:#fff;font-size:11px;text-align:left;">Escrow/Settlement</th>
+          <th style="padding:6px 8px;color:#fff;font-size:11px;text-align:left;">Title / Escrow Contact</th>
           ${d.transactionType === 'Purchase' ? `
           <th style="padding:6px 8px;color:#fff;font-size:11px;text-align:left;">Buyer's Agent</th>
           <th style="padding:6px 8px;color:#fff;font-size:11px;text-align:left;">Seller's Agent</th>` : ''}
@@ -142,30 +137,34 @@ function buildHtml(d: FormData): string {
     <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #D8DCE2;border-radius:8px;overflow:hidden;margin-bottom:20px;">
       ${tr('Title Holders', d.titleHolders)}
       ${tr('Vesting Method', d.vestingMethod)}
+      ${tr('Closing Type', d.closingType)}
       ${tr('Email for Closing Doc Delivery', d.closingDocEmail)}
     </table>
 
     <!-- Fee Details -->
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#1F7C93;border-bottom:2px solid #1F7C93;padding-bottom:6px;margin-bottom:12px;">Broker Fee Details</div>
     <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #D8DCE2;border-radius:8px;overflow:hidden;margin-bottom:20px;">
-      ${sectionHead('Standard Fees')}
+      ${sectionHead('Broker Fees')}
       ${tr('Origination Fee', d.originationFee)}
-      ${tr('Paid to Defy Discount Fee', d.discountFee)}
       ${tr('Processing Fee — Broker Charged', d.processingFeeBroker)}
       ${tr('Credit Report Fee', d.creditReportFee)}
-      ${tr('Broker YSP Credit (DSCR Only)', d.brokerYspCredit)}
-      ${sectionHead('Other Fees')}
       ${tr('Misc Fee #2', d.miscFee2)}
-      ${tr('Processing Fee — Paid to 3rd Party', d.processingFee3rdParty)}
+      ${tr('Broker YSP Credit (DSCR Only)', d.brokerYspCredit)}
 
       <tr style="background:#1F7C93;">
-        <td style="padding:10px 12px;font-size:14px;font-weight:700;color:#FFFFFF;">EXPECTED TOTAL</td>
-        <td style="padding:10px 12px;font-size:14px;font-weight:700;color:#FFFFFF;">${d.expectedTotal || '—'}</td>
+        <td style="padding:10px 12px;font-size:14px;font-weight:700;color:#FFFFFF;">BROKER TOTAL</td>
+        <td style="padding:10px 12px;font-size:14px;font-weight:700;color:#FFFFFF;">${d.brokerTotal || '—'}</td>
+      </tr>
+      ${sectionHead('Third Party Fees')}
+      ${tr('Processing Fee — Paid to 3rd Party', d.processingFee3rdParty)}
+      <tr style="background:#1F7C93;">
+        <td style="padding:10px 12px;font-size:14px;font-weight:700;color:#FFFFFF;">THIRD PARTY TOTAL</td>
+        <td style="padding:10px 12px;font-size:14px;font-weight:700;color:#FFFFFF;">${d.thirdPartyTotal || '—'}</td>
       </tr>
       <tr>
         <td style="padding:8px 12px;font-size:12px;color:#4A5A68;border-top:1px solid #D8DCE2;">
           Broker Credit to Borrower<br/>
-          <span style="font-size:10px;color:#4A5A68;">shown separately — not included in the total</span>
+          <span style="font-size:10px;color:#4A5A68;">shown separately — in neither total</span>
         </td>
         <td style="padding:8px 12px;font-size:13px;color:#0A0E17;border-top:1px solid #D8DCE2;">${d.brokerCredit || '—'}</td>
       </tr>
