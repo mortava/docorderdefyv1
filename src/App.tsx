@@ -59,6 +59,14 @@ const WORKSPACE_URL = 'https://one.defywholesale.com'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
+// Local calendar date as YYYY-MM-DD for <input type="date">.
+// NOT toISOString() — that is UTC and returns tomorrow after ~7pm Central.
+function todayLocal(): string {
+  const d = new Date()
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
 function emptyContact(): ContactColumn {
   return { escrow: '', buyersAgent: '', sellersAgent: '' }
 }
@@ -115,7 +123,6 @@ const CONTACT_FIELDS: Array<{ label: string; key: ContactFieldKey }> = [
 ]
 
 const VESTING_METHODS = [
-  '',
   'Entity / LLC',
   'Natural Person(s)',
   'TRUST (Must have Prior Approval*)',
@@ -127,11 +134,11 @@ const initialForm = (): FormData => ({
   loanNumber: '',
   borrowerLastName: '',
   loanAmount: '',
-  dateNeeded: '',
+  dateNeeded: todayLocal(),
   lockedRate: '',
   loanProduct: '30yr Fixed',
   transactionType: 'Refinance - Rate & Term',
-  occupancyType: 'Primary',
+  occupancyType: 'Investment',
 
   brokerName: emptyContact(),
   address: emptyContact(),
@@ -141,7 +148,7 @@ const initialForm = (): FormData => ({
   phone: emptyContact(),
 
   titleHolders: '',
-  vestingMethod: '',
+  vestingMethod: 'Entity / LLC',
   closingDocEmail: '',
   closingType: 'Mobile',
 
